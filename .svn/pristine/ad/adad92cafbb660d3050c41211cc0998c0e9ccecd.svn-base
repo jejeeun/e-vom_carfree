@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kr.co.ejsoft.cims.carfree.dao.CarFreeDAO">
+
+		<!-- 요일제 적발 차량 검지 -->
+		<select id="catchCarList" parameterType="CarFreeInfo" resultType="CarFreeInfo" >			
+<!--  			SELECT 		DATE_FORMAT(SHOT_DT, '%Y%m%d%H%i%S') AS DETECT_DATE
+						,		UF_SITE_NAME('S', REPLACE(left(LANE_ID, 9), "L", "S")) AS DETECT_LOCATION_NM
+						,		CAR_REG_NO
+			FROM LEZ_RTVI
+			WHERE SHOT_DT BETWEEN #{startTm} AND #{endTm} 
+						AND CAR_REG_NO IN <foreach collection="reqCarList" item="carRegNo"  open="(" close=")" separator=","> #{carRegNo} </foreach>
+			GROUP BY CAR_REG_NO -->
+			
+			SELECT 		DATE_FORMAT(A.SHOT_DT, '%Y%m%d') AS DETECT_DATE
+						,		DATE_FORMAT(A.SHOT_DT, '%H%i%S') AS DETECT_TIME
+						,		UF_SITE_NAME('S', A.SITE_ID) AS DETECT_LOCATION_NM
+						, 		A.CAR_REG_NO
+						, 		B.SITE_LAT
+						, 		B.SITE_LNG
+			FROM(	
+								SELECT 		SHOT_DT
+											,		REPLACE(left(LANE_ID, 9), "L", "S") AS SITE_ID
+											,		CAR_REG_NO
+								FROM LEZ_RTVI
+								WHERE SHOT_DT BETWEEN #{startTm} AND #{endTm} 
+								AND CAR_REG_NO IN <foreach collection="reqCarList" item="carRegNo"  open="(" close=")" separator=","> #{carRegNo} </foreach>
+								GROUP BY CAR_REG_NO
+						) AS A LEFT OUTER JOIN (
+								SELECT 		A.SITE_LAT
+											, 		A.SITE_LNG
+											, 		A.SITE_ID
+								FROM LEZ_SITE A
+																)AS B ON B.SITE_ID = A.SITE_ID
+<!-- 			WHERE 1=1
+			GROUP BY A.CAR_REG_NO -->
+		</select>
+		
+		<!-- 요일제 요청 정보 로그 남기기 -->
+		<insert id="insertCarFreeRequest" parameterType="java.util.Map">
+  		 	INSERT INTO CARFREE_REQUEST
+       			(
+       				LINKED_SN
+       			, 	LINKED_TM
+       			, 	REQ_TM
+       			, 	REQ_DAY
+       			,	CAR_NO
+       			,	CAR_REG_NO
+       			)
+   			VALUES
+       		<foreach item="item" collection="logCarList"  separator=",">
+           			(
+           				#{linkedSn}
+           			, 	#{linkedTm}
+           			, 	#{reqTm}
+           			, 	#{reqDay}
+           			,	#{item.carNo}
+           			,	#{item.carRegNo}
+           			)
+       		</foreach>
+		</insert>
+		
+		<!-- 요일제 응답 정보 로그 남기기 -->
+		<insert id="insertCarFreeResponse" parameterType="java.util.Map">
+  		 	INSERT INTO CARFREE_RESPONSE
+       			(
+       				LINKED_SN
+       			, 	LINKED_TM
+       			,	DETECT_DATE
+       			,	CAR_NO
+       			,	CAR_REG_NO
+       			,	DETECT_TIME
+       			,	DETECT_LOCATION_NM
+       			,	SITE_LAT
+       			,	SITE_LNG
+       			)
+   			VALUES
+       		<foreach item="item" collection="logCatchList"  separator=",">
+           			(
+           				#{linkedSn}
+           			, 	#{linkedTm}
+           			, 	#{detectDate}
+           			, 	#{item.carNo}
+           			,	#{item.carRegNo}
+           			,	#{item.detectTime}
+           			, 	#{item.detectLocationNm}
+           			, 	#{item.siteLat}
+           			,	#{item.siteLng}
+           			)
+       		</foreach>
+		</insert>
+		
+</mapper>
+

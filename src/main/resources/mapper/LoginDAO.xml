@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.ejsoft.cims.login.dao.LoginDAO">
+	<select id="login" parameterType="MemberVO" resultType="MemberVO">
+		SELECT
+				USER_ID
+			,	LOGIN_ID
+			,	SUBSTRING_INDEX(PWD, '_', -1)
+													AS PWD
+			,	AUTHORITY_CD
+			,	PW_ERROR_CNT
+			,	PW_CHANGE_YN
+			,	USER_NAME
+			,	EMAIL
+		FROM
+			MEMBER_USER
+		WHERE
+			LOGIN_ID = BINARY #{loginId}
+	</select>
+	
+	<update id="updatePWErrorCnt" parameterType="MemberVO">
+		UPDATE
+			MEMBER_USER
+		SET
+			PW_ERROR_CNT = #{pwErrorCnt}
+		WHERE
+			USER_ID = #{userId}
+	</update>
+
+	<select id="findAccount" parameterType="MemberVO" resultType="MemberVO">
+		SELECT
+			LOGIN_ID
+		FROM
+			MEMBER_USER
+		WHERE
+			1=1
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(userName)">
+			AND USER_NAME = #{userName}
+		</if>
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(email)">
+			AND EMAIL = #{email}
+		</if>
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(birthdate)">
+			AND BIRTHDATE = #{birthdate}
+		</if>
+	</select>
+
+	<select id="findPassword" parameterType="MemberVO" resultType="MemberVO">
+		SELECT
+			SUBSTRING_INDEX(PWD, '_', -1)		AS PWD
+		FROM
+			MEMBER_USER
+		WHERE
+			1=1
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(loginId)">
+			AND LOGIN_ID = BINARY #{loginId}
+		</if>
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(userName)">
+			AND USER_NAME = #{userName}
+		</if>
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(birthdate)">
+			AND BIRTHDATE = #{birthdate}
+		</if>
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(email)">
+			AND EMAIL = #{email}
+		</if>
+	</select>
+
+	<update id="modifyMyInfo" parameterType="MemberVO">
+		UPDATE
+			MEMBER_USER
+		SET
+				BIRTHDATE = DATE_FORMAT(STR_TO_DATE(#{birthdate}, '%Y.%m.%d'), '%Y%m%d')
+			,	TEL1 = #{tel1}
+			,	EMAIL = #{email}
+		WHERE 
+			1=1
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(userId)">
+			AND USER_ID = #{userId}
+		</if>
+	</update>
+
+	<update id="modifyPassword" parameterType="MemberVO">
+		UPDATE
+			MEMBER_USER
+		SET
+			PWD = CONCAT(LOGIN_ID, '_', #{newPwd})
+		WHERE 
+			1=1
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(userId)">
+			AND USER_ID = #{userId}
+		</if>
+	</update>
+
+	<select id="certification" parameterType="MemberVO" resultType="MemberVO">
+		SELECT
+				USER_ID
+			,	LOGIN_ID
+			,	SUBSTRING_INDEX(PWD, '_', -1)
+													AS PWD
+			,	USER_NAME
+			,	DATE_FORMAT(BIRTHDATE, '%Y.%m.%d')	AS BIRTHDATE
+			,	EMAIL
+			,	TEL1
+		FROM
+			MEMBER_USER
+		WHERE 
+			1=1
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(loginId)">
+			AND LOGIN_ID = BINARY #{loginId}
+		</if>
+		<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(pwd)">
+			AND SUBSTRING_INDEX(PWD, '_', -1) = BINARY #{pwd}
+		</if>
+	</select>
+	
+	<update id="updateAccessDt" parameterType="MemberVO">
+		UPDATE
+			MEMBER_USER
+		SET
+			ACCESS_DT = DATE_FORMAT(SYSDATE(), '%Y%m%d')
+		WHERE
+			LOGIN_ID = BINARY #{loginId}
+	</update>
+	
+	<update id="updateAdminPassword" parameterType="MemberVO">
+		UPDATE
+			MEMBER_USER
+		SET
+				PWD = CONCAT(LOGIN_ID, '_', #{newPwd})
+			,	PW_CHANGE_YN = 'Y'
+		WHERE
+			LOGIN_ID = BINARY #{loginId}
+			AND SUBSTRING_INDEX(PWD, '_', -1) = BINARY #{pwd}
+			AND SUBSTRING_INDEX(PWD, '_', -1) != BINARY #{newPwd}
+	</update>
+</mapper>

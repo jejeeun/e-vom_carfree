@@ -1,0 +1,52 @@
+@charset "utf-8";
+/* reset css */
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 400;
+  src: url(font/NotoSansKR-Regular.woff2) format('woff2'),
+       url(font/NotoSansKR-Regular.woff) format('woff'),
+       url(font/NotoSansKR-Regular.otf) format('opentype');
+}
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 500;
+  src: url(font/NotoSansKR-Medium.woff2) format('woff2'),
+       url(font/NotoSansKR-Medium.woff) format('woff'),
+       url(font/NotoSansKR-Medium.otf) format('opentype');
+}
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 700;
+  src: url(font/NotoSansKR-Bold.woff2) format('woff2'),
+       url(font/NotoSansKR-Bold.woff) format('woff'),
+       url(font/NotoSansKR-Bold.otf) format('opentype');
+}
+
+* { margin: 0; padding: 0; font-family: 'Noto Sans KR' , sans-serif; box-sizing: content-box; }
+
+html, body { width: 100%; min-width: 1200px; -webkit-text-size-adjust: none;  font-family: 'Noto Sans KR', sans-serif; }
+
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section, summary, time, mark, audio, video { margin: 0; padding: 0; border: 0; vertical-align: baseline; background: transparent; }
+
+strong { text-decoration: none; }
+a { margin: 0; padding: 0; font-size: 100%; text-decoration: none; vertical-align: baseline; cursor: pointer; }
+a, a:hover, a:focus, a:active { text-shadow: none; text-decoration: none; }
+button { margin: 0; padding: 0; font-size: 100%; vertical-align: baseline; background-color: transperant; border: 0; outline: none; cursor: pointer; }
+
+em { font-style: normal; }
+strong { text-decoration: none; }
+caption, legend { overflow: hidden; width: 0; height: 0; font-size: 0; line-height: 0; }
+
+table { border-collapse: collapse; border-spacing: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+li { list-style: none; }
+input,select { margin: 0px; padding: 0px 4px 0px 4px; vertical-align: middle; background: transparent; border: 1px solid #ddd; border-radius: 0; box-sizing: content-box; }
+img { border: 0; vertical-align: middle; }
+
+/* block */
+article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section { display: block; }

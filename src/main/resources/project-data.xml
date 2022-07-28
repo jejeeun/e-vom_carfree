@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<entry key="deploy">dev</entry>
+
+	<entry key="datasource.jdbc">oracle.jdbc.driver.OracleDriver</entry>
+	<entry key="datasource.url">jdbc:oracle:thin:@localhost:1521:xe</entry>
+	<entry key="datasource.username">ds</entry>
+	<entry key="datasource.password">1234</entry>
+
+</properties>

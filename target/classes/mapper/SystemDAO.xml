@@ -1,0 +1,785 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.ejsoft.cims.system.dao.SystemDAO">
+
+    <select id="selectCommonCodeList" resultType="commonCodeVO">
+		SELECT
+				GROUP_CD
+			,	COMMON_CD
+			,	CD_NAME, CD_ABBR
+			,	DATA_1
+			,	DATA_2
+			,	DATA_3
+			,	DATA_4
+			,	DATA_5
+			,	DATA_6
+			,	DATA_7
+			,	DATA_8
+			,	DATA_9
+			,	USE_GB
+			,	REG_DT
+			,	REG_ID
+			,	MOD_DT
+			,	MOD_ID
+		FROM
+			LEZ_COMMON_CODE
+	</select>
+
+	<select id="selectMainNoticeList" resultType="BoardVO">
+		SELECT
+				LBB.POST_NO
+			,	LBB.TITLE
+			,	MU.USER_NAME
+			,	DATE_FORMAT(STR_TO_DATE(LBB.REG_DT, '%Y%m%d'), '%Y.%m.%d') AS REG_DT
+			,	LBB.HITS
+		FROM
+			LEZ_BULLETIN_BOARD LBB
+			JOIN MEMBER_USER MU ON LBB.REG_ID = MU.USER_ID
+		WHERE
+			DATE_FORMAT(SYSDATE(), '%Y%m%d') BETWEEN POST_ST_DATE AND POST_ED_DATE
+		ORDER BY
+			LBB.POST_NO DESC
+	</select>
+	
+	<select id="selectGroupCodeList" resultType="CommonCodeVO">
+		SELECT
+				GROUP_CD
+			,	COMMON_CD
+			,	CD_NAME
+			,	CD_ABBR
+			,	DATA_1
+			,	DATA_2
+			,	DATA_3
+			,	DATA_4
+			,	DATA_5
+			,	DATA_6
+			,	DATA_7
+			,	DATA_8
+			,	DATA_9
+			,	USE_GB
+		FROM
+			LEZ_COMMON_CODE
+		WHERE 1=1
+	       <if test='@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(groupKeyword)'>
+	           AND CD_NAME LIKE CONCAT('%', #{groupKeyword}, '%')
+	       </if>
+	       <if test='@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(commonKeyword)'>
+	       	AND GROUP_CD = (SELECT 
+	       						GROUP_CD 
+   	 			            FROM 
+   	 			            	LEZ_COMMON_CODE 
+           				    WHERE 
+           				    	CD_NAME LIKE CONCAT('%', #{commonKeyword}, '%') 
+                    			AND COMMON_CD != '00000'
+                    		LIMIT 1)
+	       </if>
+	        AND COMMON_CD = '00000'
+	</select>
+	
+	<select id="selectDetailCodeList" resultType="CommonCodeVO">
+		SELECT
+				GROUP_CD
+			,	COMMON_CD
+			,	CD_NAME
+			,	CD_ABBR
+			,	DATA_1
+			,	DATA_2
+			,	DATA_3
+			,	DATA_4
+			,	DATA_5
+			,	DATA_6
+			,	DATA_7
+			,	DATA_8
+			,	DATA_9
+			,	USE_GB
+		FROM
+			LEZ_COMMON_CODE
+		WHERE 1=1
+		        <if test='@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(commonKeyword)'>
+		            AND CD_NAME LIKE CONCAT('%', #{commonKeyword}, '%')
+		        </if>
+		        <if test='@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(groupCd)'>
+		            AND GROUP_CD = #{groupCd}
+		        </if>
+		        AND COMMON_CD != '00000'
+	</select>
+	
+	<select id="groupCheck" resultType="Integer">
+		SELECT
+			COUNT(GROUP_CD)
+		FROM
+			LEZ_COMMON_CODE
+		WHERE
+			GROUP_CD = #{groupCd}
+	</select>
+
+	<update id="updateGroupCode" parameterType="CommonCodeVO">
+		UPDATE
+			LEZ_COMMON_CODE
+		SET
+				GROUP_CD = #{groupCd}
+			,	CD_NAME = #{cdName}
+			,	DATA_1 = #{data1}
+			,	DATA_2 = #{data2}
+			,	DATA_3 = #{data3}
+			,	DATA_4 = #{data4}
+			,	DATA_5 = #{data5}
+			,	DATA_6 = #{data6}
+			,	DATA_7 = #{data7}
+			,	DATA_8 = #{data8}
+			,	DATA_9 = #{data9}
+			,	MOD_DT = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+			,	MOD_ID = #{userId}
+		WHERE
+			GROUP_CD = #{groupCd}
+			AND COMMON_CD = '00000'
+	</update>
+	
+	<insert id="insertGroupCode" parameterType="CommonCodeVO">
+		INSERT INTO
+			LEZ_COMMON_CODE
+			(
+					GROUP_CD
+				,	COMMON_CD
+				,	CD_NAME
+				,	DATA_1
+				,	DATA_2
+				,	DATA_3
+				,	DATA_4
+				,	DATA_5
+				,	DATA_6
+				,	DATA_7
+				,	DATA_8
+				,	DATA_9
+				,	USE_GB
+				,	REG_DT
+				,	REG_ID
+			)
+		VALUES
+			(
+					#{groupCd}
+				,	'00000'
+				,	#{cdName}
+				,	#{data1}
+				,	#{data2}
+				,	#{data3}
+				,	#{data4}
+				,	#{data5}
+				,	#{data6}
+				,	#{data7}
+				,	#{data8}
+				,	#{data9}
+				,	'Y'
+				,	DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+				,	#{userId}
+			)
+	</insert>
+	
+	<select id="detailCheck" resultType="Integer">
+		SELECT
+			  COUNT(COMMON_CD)
+		FROM
+			LEZ_COMMON_CODE
+		WHERE
+			GROUP_CD = #{groupCd}
+			AND COMMON_CD = #{commonCd}
+	</select>
+	
+	<update id="updateDetailCode" parameterType="CommonCodeVO">
+		UPDATE
+			LEZ_COMMON_CODE
+		SET
+				COMMON_CD = #{commonCd}
+			,	CD_NAME = #{cdName}
+			,	DATA_1 = #{data1}
+			,	DATA_2 = #{data2}
+			,	DATA_3 = #{data3}
+			,	DATA_4 = #{data4}
+			,	DATA_5 = #{data5}
+			,	DATA_6 = #{data6}
+			,	DATA_7 = #{data7}
+			,	DATA_8 = #{data8}
+			,	DATA_9 = #{data9}
+			,	MOD_DT = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+			,	MOD_ID = #{userId}
+		WHERE
+			GROUP_CD = #{groupCd}
+			AND COMMON_CD = #{commonCd}
+	</update>
+	
+	<insert id="insertDetailCode"	parameterType="CommonCodeVO">
+		INSERT INTO 
+			LEZ_COMMON_CODE
+			(
+					GROUP_CD
+				,	COMMON_CD
+				,	CD_NAME
+				,	DATA_1
+				,	DATA_2
+				,	DATA_3
+				,	DATA_4
+				,	DATA_5
+				,	DATA_6
+				,	DATA_7
+				,	DATA_8
+				,	DATA_9
+				,	USE_GB
+				,	REG_DT
+				,	REG_ID
+			)
+		VALUES
+			(
+					#{groupCd}
+				,	#{commonCd}
+				,	#{cdName}
+				,	#{data1}
+				,	#{data2}
+				,	#{data3}
+				,	#{data4}
+				,	#{data5}
+				,	#{data6}
+				,	#{data7}
+				,	#{data8}
+				,	#{data9}
+				,	'Y'
+				,	DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+				,	#{userId}
+			)
+	</insert>
+	
+	<select id="groupDeleteCheck" resultType="Integer">
+		SELECT
+			  COUNT(COMMON_CD)
+		FROM
+			LEZ_COMMON_CODE
+		WHERE
+			GROUP_CD = #{groupCd}
+			AND COMMON_CD != '00000'
+	</select>
+	
+	<delete id="deleteCode" parameterType="CommonCodeVO">
+		DELETE
+		FROM
+			LEZ_COMMON_CODE
+		WHERE
+			GROUP_CD = #{groupCd}
+			AND COMMON_CD = #{commonCd}
+	</delete>
+	
+	<select id="selectMemberListCnt" resultType="Integer">
+		SELECT 
+			COUNT(USER_ID)
+		FROM
+			MEMBER_USER
+		WHERE
+			1=1
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.searchName)">
+			AND USER_NAME LIKE CONCAT('%', #{search.searchName}, '%')
+			</if>
+	</select>
+
+	<select id="selectMemberList" resultType="MemberVO">
+		SELECT 
+				USER_ID
+			,	LOGIN_ID
+			,	USER_NAME
+			,	TEL1
+			,	EMAIL
+			,	AUTHORITY_CD
+			,	REG_DT
+			,	ACCESS_DT
+		FROM 
+			MEMBER_USER
+		WHERE
+			1=1
+	        <if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.searchName)">
+            AND USER_NAME LIKE CONCAT('%', #{search.searchName}, '%')
+	        </if>
+		ORDER BY 
+			USER_ID DESC
+		LIMIT
+			#{page.firstRecordNo}, #{search.recordSize}
+	</select>
+
+    <delete id="deleteMember" parameterType="String">
+		DELETE
+		FROM
+			MEMBER_USER
+		WHERE
+			USER_ID = #{userId}
+	</delete>
+	
+    <select id="idCheck" resultType="Integer">
+		SELECT
+			COUNT(LOGIN_ID)
+		FROM
+			MEMBER_USER
+		WHERE
+			LOGIN_ID = BINARY #{login_id}
+	</select> 
+	
+	<select id="userIdMax" resultType="String">
+		SELECT 
+		      MAX(USER_ID)
+		FROM
+			MEMBER_USER
+	</select>
+
+    <insert id="insertMember" parameterType="MemberVO">
+		INSERT INTO 
+			MEMBER_USER
+			(
+					USER_ID
+				,	USER_NAME
+				,	LOGIN_ID
+				,	PWD
+				,	AUTHORITY_CD
+				,	TEL1
+				,	EMAIL
+				,	BIRTHDATE
+				,	REG_ID
+				,	REG_DT
+			)
+		VALUES
+			(
+					CONCAT('USER', LPAD((SELECT SUBSTR(MAX(A.USER_ID), 5, 8) + 1 FROM MEMBER_USER A), 8, '0'))
+				,	#{userName}
+				,	#{loginId}
+				,	CONCAT(#{loginId}, '_', #{pwd})
+				,	#{authorityCd}
+				,	#{tel1}
+				,	#{email}
+				,	#{birthdate}
+				,	#{regId}
+				,	SYSDATE()
+			)
+	</insert>
+
+    <select id="selectMemberDetail" resultType="MemberVO">
+		SELECT 
+				USER_ID
+			,	LOGIN_ID
+			,	USER_NAME
+			,	CONCAT(SUBSTR(BIRTHDATE, 1, 4), '.', SUBSTR(BIRTHDATE, 5, 2), '.', SUBSTR(BIRTHDATE, 7, 2)) AS BIRTHDATE
+			,	EMAIL
+			,	TEL1
+			,	PWD
+			,	AUTHORITY_CD
+			,	REG_DT
+			,	ACCESS_DT
+		FROM
+			MEMBER_USER
+		WHERE
+		    USER_ID = #{search.userId}
+	</select>
+
+	<update id="updateDefaultPassword" parameterType="MemberVO">
+		UPDATE
+			MEMBER_USER
+		SET
+			PWD = CONCAT(LOGIN_ID, '_', #{pwd})
+		WHERE
+			USER_ID = #{userId}
+	</update>
+	
+	<update id="updateMember" parameterType="MemberVO">
+		UPDATE
+			MEMBER_USER
+		SET
+				AUTHORITY_CD = #{authorityCd}
+			,	USER_NAME = #{userName}
+			,	TEL1 = #{tel1}
+			,	EMAIL = #{email}
+			,	BIRTHDATE = #{birthdate}
+		 WHERE
+			USER_ID = #{userId}
+	</update>
+
+    <update id="updateMemberPwd" parameterType="MemberVO">
+		UPDATE 
+			MEMBER_USER
+		SET 
+				PWD = CONCAT(LOGIN_ID, '_', #{pwd})
+			,	AUTHORITY_CD = #{authorityCd}
+		 WHERE
+		 	USER_ID = #{userId}
+	</update>
+	
+	<select id="selectNoticeListCnt" resultType="Integer" >
+		SELECT 
+			COUNT(LBB.POST_NO)
+		FROM  
+			LEZ_BULLETIN_BOARD LBB
+			LEFT JOIN LEZ_BULLETIN_BOARD_FILE LBBF ON LBB.POST_NO = LBBF.POST_NO
+			LEFT JOIN MEMBER_USER MU ON LBB.REG_ID = MU.USER_ID
+		WHERE 
+		<![CDATA[
+			DATE_FORMAT(SYSDATE(), '%Y%m%d') >= DATE_FORMAT(LBB.POST_ST_DATE,'%Y%m%d') 
+			AND DATE_FORMAT(SYSDATE(), '%Y%m%d') <= DATE_FORMAT(LBB.POST_ED_DATE,'%Y%m%d')
+		]]>
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.searchKeyword)">
+				<if test="search.searchCondition == 0">
+					AND (LBB.TITLE LIKE CONCAT('%', #{search.searchKeyword}, '%') OR LBB.CONTENTS LIKE CONCAT('%', #{search.searchKeyword}, '%')
+					OR LBBF.FILE_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%') OR MU.USER_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%'))
+				</if>
+	            <if test="search.searchCondition == 1">
+	                AND LBB.TITLE LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	            <if test="search.searchCondition == 2">
+	                AND LBB.CONTENTS LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	            <if test="search.searchCondition == 3">
+	                AND LBBF.FILE_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	            <if test="search.searchCondition == 4">
+	                AND MU.USER_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	        </if>
+	</select>
+
+    <select id="selectNoticeList" resultType="BoardVO">
+		SELECT 
+				LBB.POST_NO
+			,	LBB.TITLE
+			,	MU.USER_NAME
+			,	DATE_FORMAT(STR_TO_DATE(LBB.REG_DT, '%Y%m%d'), '%Y.%m.%d') AS REG_DT
+			,	LBB.HITS
+			,	LBBF.FILE_NAME
+			,	LBBF.FILE_PATH
+			,	LBBF.ORIGN_FILE_NM
+			,	LBBF.FILE_EXTES
+		FROM  
+			LEZ_BULLETIN_BOARD LBB
+			LEFT JOIN LEZ_BULLETIN_BOARD_FILE LBBF ON LBB.POST_NO = LBBF.POST_NO
+			LEFT JOIN MEMBER_USER MU ON LBB.REG_ID = MU.USER_ID
+		WHERE 
+		<![CDATA[
+			DATE_FORMAT(SYSDATE(), '%Y%m%d') >= DATE_FORMAT(LBB.POST_ST_DATE,'%Y%m%d') 
+			AND DATE_FORMAT(SYSDATE(), '%Y%m%d') <= DATE_FORMAT(LBB.POST_ED_DATE,'%Y%m%d')
+		]]>
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.searchKeyword)">
+				<if test="search.searchCondition == 0">
+					AND (LBB.TITLE LIKE CONCAT('%', #{search.searchKeyword}, '%') OR LBB.CONTENTS LIKE CONCAT('%', #{search.searchKeyword}, '%')
+					OR LBBF.FILE_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%') OR MU.USER_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%'))
+				</if>
+	            <if test="search.searchCondition == 1">
+	                AND LBB.TITLE LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	            <if test="search.searchCondition == 2">
+	                AND LBB.CONTENTS LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	            <if test="search.searchCondition == 3">
+	                AND LBBF.FILE_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	            <if test="search.searchCondition == 4">
+	                AND MU.USER_NAME LIKE CONCAT('%', #{search.searchKeyword}, '%')
+	            </if>
+	        </if>
+		ORDER BY 
+			LBB.POST_NO DESC
+		LIMIT
+			#{page.firstRecordNo}, #{search.recordSize}
+	</select>
+
+    <delete id="deleteBoard" parameterType="String">
+		DELETE
+		FROM
+			LEZ_BULLETIN_BOARD
+		WHERE
+			POST_NO=#{postNo}
+	</delete>
+	
+    <delete id="deleteFileInfo" parameterType="int">
+		DELETE
+		FROM
+			LEZ_BULLETIN_BOARD_FILE
+		WHERE
+			POST_NO = #{postNo}
+	</delete>
+	
+	<select id="selectMaxPostNo" resultType="java.lang.Integer">
+		SELECT
+			MAX(POST_NO)
+		FROM
+			LEZ_BULLETIN_BOARD
+	</select>
+
+    <insert id="insertBoard" parameterType="BoardVO">
+		INSERT INTO
+			LEZ_BULLETIN_BOARD
+			(
+					POST_NO
+				,	POST_TYPE
+				,	TITLE
+				,	CONTENTS
+				,	HITS
+				,	POST_ST_DATE
+				,	POST_ED_DATE
+				,	REG_DT
+				,	REG_ID
+			)
+		VALUES
+			(
+					#{postNo}
+				,	000001
+				,	#{title}
+				,	#{contents}
+				,	0
+				,	#{postStDate}
+				,	#{postEdDate}
+				,	DATE_FORMAT(SYSDATE(), '%Y%m%d')
+				,	#{regId}
+			)
+	</insert>
+
+    <update id="upHit" parameterType="String">
+		UPDATE
+			LEZ_BULLETIN_BOARD
+		SET
+			HITS=HITS+1
+		WHERE
+			POST_NO = #{postNo}
+	</update>
+
+    <select id="detailBoard" resultType="boardVO">
+		SELECT
+			*
+		FROM
+			LEZ_BULLETIN_BOARD LBB
+			LEFT JOIN LEZ_BULLETIN_BOARD_FILE LBBF ON LBB.POST_NO = LBBF.POST_NO
+		WHERE
+			LBB.POST_NO = #{postNo}
+	</select>
+
+	<update id="updateBoard" parameterType="BoardVO">
+		UPDATE 
+			LEZ_BULLETIN_BOARD
+		SET 
+				TITLE = #{title}
+			,	CONTENTS = #{contents}
+			,	POST_ST_DATE = #{postStDate}
+			,	POST_ED_DATE = #{postEdDate}
+		WHERE
+			POST_NO = #{postNo}
+	</update>
+	
+	<select id="selectMaxFileSeq" resultType="String">
+		SELECT
+			MAX(ATTACHFILE_SEQ)
+		FROM
+			LEZ_BULLETIN_BOARD_FILE
+	</select>
+
+	<insert id="insertFileInfo" parameterType="kr.co.ejsoft.cims.system.model.FileVO">
+		INSERT INTO
+			LEZ_BULLETIN_BOARD_FILE
+			(
+					POST_NO
+				,	ATTACHFILE_SEQ
+				,	FILE_NAME
+				,	ORIGN_FILE_NM
+				,	FILE_EXTES
+				,	FILE_PATH
+				,	DOWNLOAD_CNT
+				,	REG_DT
+				,	REG_ID
+			)
+		VALUES
+			(
+					#{postNo}
+				,	#{attachfileSeq}
+				,	#{fileName}
+				,	#{orignFileNm}
+				,	#{fileExtes}
+				,	#{filePath}
+				,	0
+				,	DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+				,	#{regId}
+			)
+	</insert>
+	
+	<select id="selectFileInfo" resultType="fileVO">
+		SELECT
+				ORIGN_FILE_NM
+			,	FILE_PATH
+		FROM
+			LEZ_BULLETIN_BOARD_FILE
+		WHERE
+			FILE_NAME = #{fileName}
+	</select>
+	
+	<select id="selectInterfaceListCnt" resultType="Integer">
+		SELECT
+			COUNT(TA.BT_ID)
+		FROM (
+			SELECT
+					BI.BT_ID
+				,	BI.BT_NM
+				,	BI.NOTE
+				,	DATE_FORMAT(BR.MAX_ED_DT, '%Y.%m.%d %H:%i:%s')
+													AS	LATEST_ED_DT
+				,	BI.USE_YN
+			FROM
+				BATCH_ITEM BI
+				LEFT JOIN (
+					SELECT
+							BT_ID
+						,	MAX(ED_DT)		AS MAX_ED_DT
+					FROM
+						BATCH_RESULT
+					GROUP BY
+						BT_ID
+				) BR ON BI.BT_ID = BR.BT_ID
+			WHERE
+				1=1
+				<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.type)">
+				AND BI.TRANSMIT_GB = #{search.type}
+				</if>
+		) TA
+	</select>
+	
+	<select id="selectInterfaceList" resultType="InterfaceVO">
+		SELECT
+				BI.BT_ID
+			,	BI.BT_NM
+			,	BI.NOTE
+			,	DATE_FORMAT(BR.MAX_ED_DT, '%Y.%m.%d %H:%i:%s')
+												AS	LATEST_ED_DT
+			,	BI.USE_YN
+		FROM
+			BATCH_ITEM BI
+			LEFT JOIN (
+				SELECT
+						BT_ID
+					,	MAX(ED_DT)		AS MAX_ED_DT
+				FROM
+					BATCH_RESULT
+				GROUP BY
+					BT_ID
+			) BR ON BI.BT_ID = BR.BT_ID
+		WHERE
+			1=1
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.type)">
+			AND BI.TRANSMIT_GB = #{search.type}
+			</if>
+		ORDER BY
+			BR.MAX_ED_DT DESC, BI.BT_ID
+		LIMIT
+			#{page.firstRecordNo}, #{search.recordSize}
+	</select>
+	
+	<select id="selectInterfaceDetailListCnt" resultType="Integer">
+		SELECT
+			COUNT(TA.BT_ID)
+		FROM (
+			SELECT
+					BR.BT_ID
+				,	BI.BT_NM
+				,	BI.NOTE
+				,	DATE_FORMAT(BR.ST_DT, '%Y.%m.%d %H:%i:%s')
+												AS ST_DT
+				,	DATE_FORMAT(BR.ED_DT, '%Y.%m.%d %H:%i:%s')
+												AS ED_DT
+			FROM
+				BATCH_RESULT BR
+				LEFT JOIN BATCH_ITEM BI ON BR.BT_ID = BI.BT_ID
+			WHERE
+				1=1
+				<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.btId)">
+				AND BR.BT_ID = #{search.btId}
+				</if>
+				<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.startStDt)">
+				AND DATE_FORMAT(BR.ST_DT, '%Y.%m.%d %H:%i') <![CDATA[ >= ]]> #{search.startStDt}
+				</if>
+				<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.endStDt)">
+				AND DATE_FORMAT(BR.ST_DT, '%Y.%m.%d %H:%i') <![CDATA[ <= ]]> #{search.endStDt}
+				</if>
+				<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.startEdDt)">
+				AND DATE_FORMAT(BR.ED_DT, '%Y.%m.%d %H:%i') <![CDATA[ >= ]]> #{search.startEdDt}
+				</if>
+				<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.endEdDt)">
+				AND DATE_FORMAT(BR.ED_DT, '%Y.%m.%d %H:%i') <![CDATA[ <= ]]> #{search.endEdDt}
+				</if>
+		) TA
+	</select>
+	
+	<select id="selectInterfaceDetailList" resultType="InterfaceVO">
+		SELECT
+				BR.BT_ID
+			,	BI.BT_NM
+			,	BI.NOTE
+			,	DATE_FORMAT(BR.ST_DT, '%Y.%m.%d %H:%i:%s')
+											AS ST_DT
+			,	DATE_FORMAT(BR.ED_DT, '%Y.%m.%d %H:%i:%s')
+											AS ED_DT
+		FROM
+			BATCH_RESULT BR
+			LEFT JOIN BATCH_ITEM BI ON BR.BT_ID = BI.BT_ID
+		WHERE
+			1=1
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.btId)">
+			AND BR.BT_ID = #{search.btId}
+			</if>
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.startStDt)">
+			AND DATE_FORMAT(BR.ST_DT, '%Y.%m.%d %H:%i') <![CDATA[ >= ]]> #{search.startStDt}
+			</if>
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.endStDt)">
+			AND DATE_FORMAT(BR.ST_DT, '%Y.%m.%d %H:%i') <![CDATA[ <= ]]> #{search.endStDt}
+			</if>
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.startEdDt)">
+			AND DATE_FORMAT(BR.ED_DT, '%Y.%m.%d %H:%i') <![CDATA[ >= ]]> #{search.startEdDt}
+			</if>
+			<if test="@kr.co.ejsoft.cims.common.mybatis.QueryUtils@isNotEmpty(search.endEdDt)">
+			AND DATE_FORMAT(BR.ED_DT, '%Y.%m.%d %H:%i') <![CDATA[ <= ]]> #{search.endEdDt}
+			</if>
+		ORDER BY
+			BR.ST_DT DESC
+		LIMIT
+			#{page.firstRecordNo}, #{search.recordSize}
+	</select>
+	
+	<select id="selectFileDelCycleInfo" resultType="CommonCodeVO">
+		SELECT
+				DATA_1
+			,	DATA_2
+			,	DATA_3
+		FROM
+			LEZ_COMMON_CODE
+		WHERE
+			GROUP_CD = '9900'
+			AND COMMON_CD = '00010'
+	</select>
+	
+	<select id="selectDBUsageStatus" resultType="String">
+		SELECT 
+			ROUND(SUM(DATA_LENGTH+INDEX_LENGTH)/(1024*1024*1024), 2) 
+		FROM 
+			INFORMATION_SCHEMA.TABLES
+		WHERE 
+			TABLE_SCHEMA ='rtvi'
+	</select>
+	
+	<select id="selectDBTableUsageStatus" resultType="DBTableUsageInfo">
+		SELECT
+				TABLE_NAME
+			,	TABLE_COMMENT
+			,	ROUND(TABLE_ROWS/10000, 2)					AS TABLE_ROWS
+			,	ROUND(DATA_LENGTH / (1024*1024*1024), 3)	AS DATA_SIZE
+			,	ROUND(INDEX_LENGTH / (1024*1024*1024), 3)	AS INDEX_SIZE
+			,	ROUND(DATA_FREE / (1024*1024*1024), 3)		AS DATA_FREE
+			,	ROUND(DATA_FREE / (1024*1024*1024) / ((DATA_LENGTH  / (1024*1024*1024)) + (INDEX_LENGTH / (1024*1024*1024)))*10, 2)
+															AS TABLE_DEFRAGMENT
+		FROM 
+		  	INFORMATION_SCHEMA.TABLES
+		WHERE 
+			TABLE_SCHEMA = 'rtvi'
+			AND TABLE_TYPE ='BASE TABLE'
+		GROUP BY 
+			TABLE_NAME 
+		ORDER BY 
+			DATA_LENGTH DESC 
+		LIMIT 
+			12
+	</select>
+	
+</mapper>

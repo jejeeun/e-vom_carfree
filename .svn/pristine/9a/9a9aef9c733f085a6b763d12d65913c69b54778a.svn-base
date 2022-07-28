@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://www.ehcache.org/ehcache.xsd"
+         updateCheck="true"
+         monitoring="autodetect"
+         dynamicConfig="true">
+    <defaultCache
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            overflowToDisk="true"
+            maxElementsOnDisk="10000000"
+            diskPersistent="false"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LRU" />
+    <cache name="laneMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+    <cache name="siteMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+    <cache name="laneListMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+    <cache name="cameraListMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+    <cache name="cameraAsListMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+    <cache name="siteCameraListMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+    <cache name="seasonMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+    <cache name="commonCodeMap" eternal="false" maxElementsInMemory="1000" overflowToDisk="false" timeToLiveSeconds="600" />
+</ehcache>

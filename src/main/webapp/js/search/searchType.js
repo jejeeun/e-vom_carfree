@@ -1,0 +1,7 @@
+var SearchType = (function () {
+
+
+	return {
+
+	}
+})();
